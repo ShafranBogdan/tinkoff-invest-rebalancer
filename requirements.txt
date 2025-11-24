@@ -1,0 +1,4 @@
+flask==3.0.0
+tinkoff-investments==0.2.0b60
+python-dotenv==1.0.0
+cryptography==41.0.7
