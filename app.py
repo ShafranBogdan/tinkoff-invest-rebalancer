@@ -7,7 +7,28 @@ from auth import UserDatabase, generate_session_id
 app = Flask(__name__)
 
 # Секретный ключ для сессий
-app.secret_key = os.environ.get('SECRET_KEY', secrets.token_hex(32))
+def get_or_create_secret_key():
+    """Получает SECRET_KEY из переменной окружения или создает новый"""
+    secret_key = os.environ.get('SECRET_KEY')
+    
+    if secret_key:
+        return secret_key
+    
+    # Если нет в переменной окружения, пробуем прочитать из файла
+    secret_file = os.path.join(os.path.dirname(__file__), '.secret_key')
+    if os.path.exists(secret_file):
+        with open(secret_file, 'r') as f:
+            return f.read().strip()
+    
+    # Если файла нет, создаем новый ключ и сохраняем
+    new_key = secrets.token_hex(32)
+    with open(secret_file, 'w') as f:
+        f.write(new_key)
+    print(f"⚠️  Создан новый SECRET_KEY в файле .secret_key")
+    print("   Сохраните этот файл в безопасном месте!")
+    return new_key
+
+app.secret_key = get_or_create_secret_key()
 
 # Инициализация базы данных
 db = UserDatabase()
